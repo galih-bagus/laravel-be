@@ -5,6 +5,7 @@ namespace App\Http\Requests\API;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Contracts\Validation\Validator;
+use Symfony\Component\HttpFoundation\Response as HttpFoundationResponse;
 
 class RegisterRequest extends FormRequest
 {
@@ -37,6 +38,6 @@ class RegisterRequest extends FormRequest
             'status'   => 'failed',
             'message'   => 'Validation errors',
             'data'      => $validator->errors()
-        ]));
+        ], HttpFoundationResponse::HTTP_NOT_ACCEPTABLE));
     }
 }

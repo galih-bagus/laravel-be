@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\v1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\RegisterRequest;
+use App\Http\Requests\API\LoginRequest;
 use App\Models\User;
 use Exception;
 use Illuminate\Database\QueryException;
@@ -45,6 +46,43 @@ class AuthController extends Controller
             $message = 'Terjadi kesalahan : ' . $e->getMessage();
         } catch (QueryException $e) {
             DB::rollBack();
+            $req_status = HttpFoundationResponse::HTTP_INTERNAL_SERVER_ERROR;
+            $status = 'failed';
+            $message = 'Terjadi kesalahan pada database: ' . $e->getMessage();
+        } finally {
+            return response()->json([
+                'data' => $data,
+                'status' => $status,
+                'message' => $message
+            ], $req_status);
+        }
+    }
+    public function login(LoginRequest $request)
+    {
+        $data = null;
+        $status = '';
+        $req_status = 0;
+        $message = '';
+
+        try {
+            $data = User::where('email', $request->email)->first();
+            if ($data) {
+                if (Hash::check($request->password, $data->password)) {
+                    $req_status = HttpFoundationResponse::HTTP_OK;
+                    $status = 'success';
+                    $message = 'Berhasil';
+                    $data->token = $data->createToken('token')->plainTextToken;
+                }
+            } else {
+                $req_status = HttpFoundationResponse::HTTP_INTERNAL_SERVER_ERROR;
+                $status = 'failed';
+                $message = 'Akun tidak ditemukan';
+            }
+        } catch (Exception $e) {
+            $req_status = HttpFoundationResponse::HTTP_INTERNAL_SERVER_ERROR;
+            $status = 'failed';
+            $message = 'Terjadi kesalahan : ' . $e->getMessage();
+        } catch (QueryException $e) {
             $req_status = HttpFoundationResponse::HTTP_INTERNAL_SERVER_ERROR;
             $status = 'failed';
             $message = 'Terjadi kesalahan pada database: ' . $e->getMessage();

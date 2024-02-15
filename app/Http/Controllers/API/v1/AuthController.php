@@ -94,4 +94,31 @@ class AuthController extends Controller
             ], $req_status);
         }
     }
+
+    public function logout(Request $request)
+    {
+        $status = '';
+        $req_status = 0;
+        $message = '';
+
+        try {
+            $request->user()->currentAccessToken()->delete();
+            $req_status = HttpFoundationResponse::HTTP_OK;
+            $status = 'success';
+            $message = 'Berhasil Logout.';
+        } catch (Exception $e) {
+            $req_status = HttpFoundationResponse::HTTP_INTERNAL_SERVER_ERROR;
+            $status = 'failed';
+            $message = 'Terjadi kesalahan : ' . $e->getMessage();
+        } catch (QueryException $e) {
+            $req_status = HttpFoundationResponse::HTTP_INTERNAL_SERVER_ERROR;
+            $status = 'failed';
+            $message = 'Terjadi kesalahan pada database: ' . $e->getMessage();
+        } finally {
+            return response()->json([
+                'status' => $status,
+                'message' => $message
+            ], $req_status);
+        }
+    }
 }

@@ -25,7 +25,7 @@ class ProductTypeController extends Controller
 
         DB::beginTransaction();
         try {
-            $data = ProductType::paginate($request->limit ?? 10);
+            $data = ProductType::where('name', 'like', '%' . $request->key . '%')->paginate($request->limit ?? 10);
             $req_status = HttpFoundationResponse::HTTP_OK;
             $status = 'success';
             $message = 'Berhasil';

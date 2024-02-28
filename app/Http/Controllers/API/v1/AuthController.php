@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\API\RegisterRequest;
 use App\Http\Requests\API\LoginRequest;
 use App\Models\User;
+use App\Models\PersonalAccessToken;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
@@ -72,6 +73,16 @@ class AuthController extends Controller
                     $status = 'success';
                     $message = 'Berhasil';
                     $data->token = $data->createToken('token')->plainTextToken;
+                    // Insert token into personal_access_token table
+                    // $accessToken = new PersonalAccessToken();
+                    // $accessToken->tokenable_type = get_class($data);
+                    // $accessToken->tokenable_id = $data->id;
+                    // $accessToken->name = 'token';
+                    // $accessToken->token = hash('sha256', $data->plainTextToken); // Hash the token
+                    // $accessToken->abilities = '["*"]';
+                    // $accessToken->save();
+
+                    // $data->token = $accessToken->token;
                 }
             } else {
                 $req_status = HttpFoundationResponse::HTTP_INTERNAL_SERVER_ERROR;

@@ -3,15 +3,15 @@
 namespace App\Http\Controllers\API\v1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\API\ProductTypeRequest;
-use App\Models\ProductType;
+use App\Http\Requests\API\ProductMainCategoryRequest;
+use App\Models\ProductMainCategory;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response as HttpFoundationResponse;
 
-class ProductTypeController extends Controller
+class ProductMainCategoryController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -25,7 +25,7 @@ class ProductTypeController extends Controller
 
         DB::beginTransaction();
         try {
-            $data = ProductType::where('name', 'like', '%' . $request->key . '%')->paginate($request->limit ?? 10);
+            $data = ProductMainCategory::with('productType')->where('name', 'like', '%' . $request->key . '%')->paginate($request->limit ?? 10);
             $req_status = HttpFoundationResponse::HTTP_OK;
             $status = 'success';
             $message = 'Berhasil';
@@ -59,7 +59,7 @@ class ProductTypeController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(ProductTypeRequest $request)
+    public function store(ProductMainCategoryRequest $request)
     {
         $data = null;
         $status = '';
@@ -68,11 +68,12 @@ class ProductTypeController extends Controller
 
         DB::beginTransaction();
         try {
-            $productType = new ProductType();
-            $productType->name = $request->name;
-            $productType->save();
+            $productMainCategory = new ProductMainCategory();
+            $productMainCategory->name = $request->name;
+            $productMainCategory->product_type_id = $request->product_type_id;
+            $productMainCategory->save();
             DB::commit();
-            $data = $productType;
+            $data = $productMainCategory;
             $req_status = HttpFoundationResponse::HTTP_OK;
             $status = 'success';
             $message = 'Berhasil';
@@ -98,15 +99,14 @@ class ProductTypeController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(ProductMainCategory $productMainCategory)
     {
-         $data = null;
+        $data = null;
         $status = '';
         $req_status = 0;
         $message = '';
-
         try {
-            $data = ProductType::find($id);
+            $data = $productMainCategory->load('productType');
             $req_status = HttpFoundationResponse::HTTP_OK;
             $status = 'success';
             $message = 'Berhasil';
@@ -130,7 +130,7 @@ class ProductTypeController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(ProductMainCategory $productMainCategory)
     {
         //
     }
@@ -138,7 +138,7 @@ class ProductTypeController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(ProductTypeRequest $request, string $id)
+    public function update(ProductMainCategoryRequest $request, ProductMainCategory $productMainCategory)
     {
         $data = null;
         $status = '';
@@ -147,11 +147,11 @@ class ProductTypeController extends Controller
 
         DB::beginTransaction();
         try {
-            $productType = ProductType::find($id);
-            $productType->name = $request->name;
-            $productType->save();
+            $productMainCategory->name = $request->name;
+            $productMainCategory->product_type_id = $request->product_type_id;
+            $productMainCategory->save();
             DB::commit();
-            $data = $productType;
+            $data = $productMainCategory;
             $req_status = HttpFoundationResponse::HTTP_OK;
             $status = 'success';
             $message = 'Berhasil';
@@ -177,7 +177,7 @@ class ProductTypeController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(ProductMainCategory $productMainCategory)
     {
         $status = '';
         $req_status = 0;
@@ -185,7 +185,7 @@ class ProductTypeController extends Controller
 
         DB::beginTransaction();
         try {
-            ProductType::find($id)->delete();
+            $productMainCategory->delete();
             DB::commit();
             $req_status = HttpFoundationResponse::HTTP_OK;
             $status = 'success';

@@ -7,13 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Traits\Uuid;
 
-class ProductType extends Model
+class ProductMainCategory extends Model
 {
     use HasFactory,SoftDeletes,Uuid;
 
-    public function productMainCategories()
+    public function productType()
     {
-        return $this->hasMany(ProductMainCategory::class);
+        return $this->belongsTo(ProductType::class);
     }
 
      public function getKeyType()

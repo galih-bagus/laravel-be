@@ -100,7 +100,31 @@ class ProductTypeController extends Controller
      */
     public function show(string $id)
     {
-        //
+         $data = null;
+        $status = '';
+        $req_status = 0;
+        $message = '';
+
+        try {
+            $data = ProductType::find($id);
+            $req_status = HttpFoundationResponse::HTTP_OK;
+            $status = 'success';
+            $message = 'Berhasil';
+        } catch (Exception $e) {
+            $req_status = HttpFoundationResponse::HTTP_INTERNAL_SERVER_ERROR;
+            $status = 'failed';
+            $message = 'Terjadi kesalahan : ' . $e->getMessage();
+        } catch (QueryException $e) {
+            $req_status = HttpFoundationResponse::HTTP_INTERNAL_SERVER_ERROR;
+            $status = 'failed';
+            $message = 'Terjadi kesalahan pada database: ' . $e->getMessage();
+        } finally {
+            return response()->json([
+                'data' => $data,
+                'status' => $status,
+                'message' => $message
+            ], $req_status);
+        }
     }
 
     /**

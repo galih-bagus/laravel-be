@@ -101,7 +101,30 @@ class ProductMainCategoryController extends Controller
      */
     public function show(ProductMainCategory $productMainCategory)
     {
-        //
+        $data = null;
+        $status = '';
+        $req_status = 0;
+        $message = '';
+        try {
+            $data = $productMainCategory->load('productType');
+            $req_status = HttpFoundationResponse::HTTP_OK;
+            $status = 'success';
+            $message = 'Berhasil';
+        } catch (Exception $e) {
+            $req_status = HttpFoundationResponse::HTTP_INTERNAL_SERVER_ERROR;
+            $status = 'failed';
+            $message = 'Terjadi kesalahan : ' . $e->getMessage();
+        } catch (QueryException $e) {
+            $req_status = HttpFoundationResponse::HTTP_INTERNAL_SERVER_ERROR;
+            $status = 'failed';
+            $message = 'Terjadi kesalahan pada database: ' . $e->getMessage();
+        } finally {
+            return response()->json([
+                'data' => $data,
+                'status' => $status,
+                'message' => $message
+            ], $req_status);
+        }
     }
 
     /**
@@ -115,9 +138,40 @@ class ProductMainCategoryController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, ProductMainCategory $productMainCategory)
+    public function update(ProductMainCategoryRequest $request, ProductMainCategory $productMainCategory)
     {
-        //
+        $data = null;
+        $status = '';
+        $req_status = 0;
+        $message = '';
+
+        DB::beginTransaction();
+        try {
+            $productMainCategory->name = $request->name;
+            $productMainCategory->product_type_id = $request->product_type_id;
+            $productMainCategory->save();
+            DB::commit();
+            $data = $productMainCategory;
+            $req_status = HttpFoundationResponse::HTTP_OK;
+            $status = 'success';
+            $message = 'Berhasil';
+        } catch (Exception $e) {
+            DB::rollBack();
+            $req_status = HttpFoundationResponse::HTTP_INTERNAL_SERVER_ERROR;
+            $status = 'failed';
+            $message = 'Terjadi kesalahan : ' . $e->getMessage();
+        } catch (QueryException $e) {
+            DB::rollBack();
+            $req_status = HttpFoundationResponse::HTTP_INTERNAL_SERVER_ERROR;
+            $status = 'failed';
+            $message = 'Terjadi kesalahan pada database: ' . $e->getMessage();
+        } finally {
+            return response()->json([
+                'data' => $data,
+                'status' => $status,
+                'message' => $message
+            ], $req_status);
+        }
     }
 
     /**
@@ -125,6 +179,32 @@ class ProductMainCategoryController extends Controller
      */
     public function destroy(ProductMainCategory $productMainCategory)
     {
-        //
+        $status = '';
+        $req_status = 0;
+        $message = '';
+
+        DB::beginTransaction();
+        try {
+            $productMainCategory->delete();
+            DB::commit();
+            $req_status = HttpFoundationResponse::HTTP_OK;
+            $status = 'success';
+            $message = 'Berhasil';
+        } catch (Exception $e) {
+            DB::rollBack();
+            $req_status = HttpFoundationResponse::HTTP_INTERNAL_SERVER_ERROR;
+            $status = 'failed';
+            $message = 'Terjadi kesalahan : ' . $e->getMessage();
+        } catch (QueryException $e) {
+            DB::rollBack();
+            $req_status = HttpFoundationResponse::HTTP_INTERNAL_SERVER_ERROR;
+            $status = 'failed';
+            $message = 'Terjadi kesalahan pada database: ' . $e->getMessage();
+        } finally {
+            return response()->json([
+                'status' => $status,
+                'message' => $message
+            ], $req_status);
+        }
     }
 }

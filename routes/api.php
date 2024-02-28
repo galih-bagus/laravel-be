@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\API\v1\AuthController;
 use App\Http\Controllers\API\v1\ProductTypeController;
+use App\Http\Controllers\API\v1\ProductMainCategoryController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -30,6 +31,7 @@ Route::prefix('v1')->group(function () {
         });
         Route::prefix('master-data')->group(function () {
             Route::resource('product-type', ProductTypeController::class);
+            Route::resource('product-main-category', ProductMainCategoryController::class);
         });
     });
 });
